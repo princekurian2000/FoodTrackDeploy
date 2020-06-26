@@ -82,8 +82,46 @@
           </div>
           <div id="intermediate" style="display: none;"> 
             <hr/>
-            <h1>Intermediate Page </h1>  
-            <div><p id="accountAddress" class="text-center"></p></div>        
+            <form onSubmit="App.updtaeByInterMediate(); return false;">
+              <table class="table">
+                <tr>
+                  <td>Login As</td>
+                  <td><p id="accountAddress" class="text-center"></p>(InterMediate)</td>
+                </tr>
+                <tr>
+                  <td>Tracking Number</td>
+                  <td><select class="form-control" id="trackingIDSelect" onchange="App.selectedTrackingNumber();">
+                  </select></td>
+                </tr>
+                <tr>                  
+                  <td colspan="2"><p id="chainHistory" class="text-center"></p></td>
+                </tr>
+                <tr>
+                  <td>Previous Info</td>
+                  <td><textarea cols="30" rows="5" class="form-control" id="prvInfo" readonly></textarea></td>
+                </tr>
+                <tr>
+                  <td>Date</td>
+                  <td><input type="date" class="form-control" id="newDate"></td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td><input type="time" class="form-control" id="newTime"></td>
+                </tr>
+                <tr>
+                  <td>Product Info</td>
+                  <td>
+                    <textarea cols="30" rows="8" class="form-control" id="newPrdInfo"></textarea>
+                  </td>
+                </tr>
+                <tr >
+                  <td colspan="2" align="center">
+                  <button class="btn btn-primary">Add to Blockchain</button>
+                </td>
+                </tr>
+              </table>             
+            <hr />
+          </form>      
           </div>
           <div id="endUser" style="display: none;"> 
             <hr/>

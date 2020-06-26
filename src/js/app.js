@@ -34,15 +34,43 @@ App = {
       return App.render();
     });
   },
+
   registerRole: async function() {
     var role=$("#RoleSelect").val();
     console.log("Selected role is=",role);
     var instance=await App.contracts.FoodTrack.deployed();   
     await instance.registerRoles(role, { from: App.account });
-    alert("Registered successfully");
-        
+    alert("Registered successfully");        
   },
 
+  selectedTrackingNumber:  function() {
+    var trackingNumberSelected=$("#trackingIDSelect").val();
+    prvInfo.empty(); 
+    prvInfo.append("Loading data from Blockchain...pls wait..."); 
+     App.contracts.FoodTrack.deployed().then((foodtrackInstance)=>{
+      foodtrackInstance.products(trackingNumberSelected).then(function(product) {
+        var id = product[0];
+        var name = product[1];
+        var date = product[2];
+        var time = product[3];
+        var productinfo = product[4];
+        let productjson = {
+          id: id,
+          name: name,
+          date: date,
+          time: time,
+          productinfo: productinfo
+        };                
+        let json = JSON.stringify(productjson);      
+        prvInfo.append(json); 
+        var trackindId = "<option value='" + id + "' >" + id + "</ option>"
+        prvInfo.empty(); 
+        trackingIDSelect.append(trackindId);
+      });
+
+     });
+
+  },
   addProductByFarmer: async function() {
     var prdName=$("#prdName").val();
     var prdDate=$("#prdDate").val();
@@ -98,7 +126,7 @@ App = {
     if(window.ethereum){
       ethereum.enable().then(function(acc){
           App.account = acc[0];
-          $("#accountAddress").html(App.account);
+          $("[id='accountAddress']").html(App.account);
       });
   }
     //alert(web3.currentProvider.selectedAddress);
@@ -106,6 +134,7 @@ App = {
     //$("#accountAddress").html("Your Account: " + web3.currentProvider.selectedAddress);
 
     App.contracts.FoodTrack.deployed().then(function(instance) {
+      foodtrackInstance=instance;
       return instance.roles(App.account);
     }).then(function(role){  
       if(role=="1"){
@@ -116,6 +145,35 @@ App = {
         endUser.hide();
       }
       else if(role=="2"){
+
+        foodtrackInstance.productCount().then((c)=>{                
+            var trackingIDSelect = $('#trackingIDSelect');
+            trackingIDSelect.empty();
+            var prvInfo = $('#prvInfo');
+            prvInfo.empty();
+      
+            for (var i = 1; i <= i; i++) {
+              foodtrackInstance.products(i).then(function(product) {
+                var id = product[0];
+                var name = product[1];
+                var date = product[2];
+                var time = product[3];
+                var productinfo = product[4];
+                let productjson = {
+                  id: id,
+                  name: name,
+                  date: date,
+                  time: time,
+                  productinfo: productinfo
+                };                
+                let json = JSON.stringify(productjson);      
+                prvInfo.append(json);        
+                //prvInfo.append("id="+id+",name="+name+",date="+date+",time="+time+",productinfo="+productinfo);             
+                var trackindId = "<option value='" + id + "' >" + id + "</ option>"
+                trackingIDSelect.append(trackindId);
+              });
+            }
+        });
         loader.hide();
         content.hide();
         farmer.hide();
@@ -190,7 +248,6 @@ App = {
   //   });
   // }
 };
-
 $(function() {
   $(window).load(function() {
     App.init();
