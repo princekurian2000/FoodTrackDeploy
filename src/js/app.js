@@ -3,6 +3,7 @@ App = {
   contracts: {},
   account: '0x0',
   hasVoted: false,
+  loading:false,
 
   init: function() {
     return App.initWeb3();
@@ -28,9 +29,7 @@ App = {
       App.contracts.FoodTrack = TruffleContract(foodtrack);
       // Connect provider to interact with contract
       App.contracts.FoodTrack.setProvider(App.web3Provider);
-
-      //App.listenForEvents();
-
+      App.listenForEvents();
       return App.render();
     });
   },
@@ -44,11 +43,16 @@ App = {
   },
 
   selectedTrackingNumber:  function() {
-    var trackingNumberSelected=$("#trackingIDSelect").val();
+    
+    var trackingNumberSelected=parseInt($("#trackingIDSelect").val());
+    console.log(trackingNumberSelected);
+    var prvInfo = $('#prvInfo');
     prvInfo.empty(); 
     prvInfo.append("Loading data from Blockchain...pls wait..."); 
      App.contracts.FoodTrack.deployed().then((foodtrackInstance)=>{
+       console.log("deployed")
       foodtrackInstance.products(trackingNumberSelected).then(function(product) {
+        console.log(product);
         var id = product[0];
         var name = product[1];
         var date = product[2];
@@ -61,14 +65,11 @@ App = {
           time: time,
           productinfo: productinfo
         };                
-        let json = JSON.stringify(productjson);      
-        prvInfo.append(json); 
-        var trackindId = "<option value='" + id + "' >" + id + "</ option>"
-        prvInfo.empty(); 
-        trackingIDSelect.append(trackindId);
+        let json = JSON.stringify(productjson);  
+        prvInfo.empty();    
+        prvInfo.append(json);  
       });
-
-     });
+    });
 
   },
   addProductByFarmer: async function() {
@@ -77,67 +78,67 @@ App = {
     var prdTime=$("#prdTime").val();
     var prdInfo=$("#prdInfo").val();       
     var instance=await App.contracts.FoodTrack.deployed();   
-    await instance.addProduct(prdName,prdDate,prdTime,prdInfo );
+    await instance.addProduct(prdName,prdDate,prdTime,prdInfo );    
+    alert("Added  successfully");        
+  },
+  updtaeByInterMediate: async function() {
     
-    alert("Added  successfully");
-        
+    var prdId=parseInt($("#trackingIDSelect").val());
+    var prdDate=$("#newDate").val();
+    var prdTime=$("#newTime").val();
+    var prdInfo=$("#newPrdInfo").val();       
+    var instance=await App.contracts.FoodTrack.deployed();   
+    await instance.updateProduct(prdId,prdDate,prdTime,prdInfo );    
+    alert("updated   successfully");        
   },
 
 
-  // Listen for events emitted from the contract
-  // listenForEvents: function() {
-  //   App.contracts.FoodTrack.deployed().then(function(instance) {
-  //     // Restart Chrome if you are unable to receive this event
-  //     // This is a known issue with Metamask
-  //     // https://github.com/MetaMask/metamask-extension/issues/2393
-  //     instance.addedProduct({}, {
-  //       fromBlock: 0,
-  //       toBlock: 'latest'
-  //     }).watch(function(error, event) {
-  //       console.log("event triggered", event)
-  //       //
-  //       App.render();
-  //     });
-  //   });
-  // },
+  //Listen for events emitted from the contract
+  listenForEvents: function() {
+    App.contracts.FoodTrack.deployed().then(function(instance) {
+      // Restart Chrome if you are unable to receive this event
+      // This is a known issue with Metamask
+      // https://github.com/MetaMask/metamask-extension/issues/2393
+      instance.addedProduct({}, {
+        fromBlock: 0,
+        toBlock: 'latest'
+      }).watch(function(error, event) {
+         console.log(event.args);
+        //consolelog(event);
+        App.render();
+      });
+    });
+  },
 
   render: function() {
+    if(App.loading){
+      return;
+    }
+    App.loading=true;
     var foodtrackInstance;
     var loader = $("#loader");
     var content = $("#content");
     var farmer = $("#farmer");
     var intermediate = $("#intermediate");
     var endUser = $("#endUser");
-
-
     loader.show();
     content.hide();
     farmer.hide();
     intermediate.hide();
-    endUser.hide();
-
-    // Load account data
-    // web3.eth.getCoinbase(function(err, account) {
-    //   if (err === null) {
-    //     App.account = account;
-    //     $("#accountAddress").html("Your Account: " + account);
-    //   }
-    // });
+    endUser.hide();   
+    //load accout data 
     if(window.ethereum){
       ethereum.enable().then(function(acc){
           App.account = acc[0];
           $("[id='accountAddress']").html(App.account);
       });
-  }
-    //alert(web3.currentProvider.selectedAddress);
-    //alert(web3.eth.getAccounts());
-    //$("#accountAddress").html("Your Account: " + web3.currentProvider.selectedAddress);
-
+  }    
     App.contracts.FoodTrack.deployed().then(function(instance) {
       foodtrackInstance=instance;
       return instance.roles(App.account);
     }).then(function(role){  
       if(role=="1"){
+        App.loading=false;
         loader.hide();
         content.hide();
         farmer.show();
@@ -151,8 +152,8 @@ App = {
             trackingIDSelect.empty();
             var prvInfo = $('#prvInfo');
             prvInfo.empty();
-      
-            for (var i = 1; i <= i; i++) {
+            var flag=0;
+            for (var i = 1; i <= c; i++) {
               foodtrackInstance.products(i).then(function(product) {
                 var id = product[0];
                 var name = product[1];
@@ -166,14 +167,14 @@ App = {
                   time: time,
                   productinfo: productinfo
                 };                
-                let json = JSON.stringify(productjson);      
-                prvInfo.append(json);        
-                //prvInfo.append("id="+id+",name="+name+",date="+date+",time="+time+",productinfo="+productinfo);             
+                let json = JSON.stringify(productjson); 
+                if(flag==0){prvInfo.append(json); flag=1;}  
                 var trackindId = "<option value='" + id + "' >" + id + "</ option>"
                 trackingIDSelect.append(trackindId);
               });
             }
         });
+        App.loading=false;
         loader.hide();
         content.hide();
         farmer.hide();
@@ -181,6 +182,7 @@ App = {
         endUser.hide();
       }
       else if(role=="3"){
+        App.loading=false;
         loader.hide();
         content.hide();
         farmer.hide();
@@ -188,6 +190,7 @@ App = {
         endUser.show();
       } 
       else{
+        App.loading=false;
         loader.hide();
         content.show();
         farmer.hide();
@@ -195,58 +198,8 @@ App = {
         endUser.hide();
       }
       
-    });
-    // // Load contract data
-    // App.contracts.FoodTrack.deployed().then(function(instance) {
-    //   foodtrackInstance = instance;
-    //   return foodtrackInstance.candidatesCount();
-    // }).then(function(candidatesCount) {
-    //   var candidatesResults = $("#candidatesResults");
-    //   candidatesResults.empty();
-
-    //   var candidatesSelect = $('#candidatesSelect');
-    //   candidatesSelect.empty();
-
-    //   for (var i = 1; i <= candidatesCount; i++) {
-    //     foodtrackInstance.candidates(i).then(function(candidate) {
-    //       var id = candidate[0];
-    //       var name = candidate[1];
-    //       var voteCount = candidate[2];
-
-    //       // Render candidate Result
-    //       var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
-    //       candidatesResults.append(candidateTemplate);
-
-    //       // Render candidate ballot option
-    //       var candidateOption = "<option value='" + id + "' >" + name + "</ option>"
-    //       candidatesSelect.append(candidateOption);
-    //     });
-    //   }
-    //   return foodtrackInstance.voters(App.account);
-    // }).then(function(hasVoted) {
-    //   // Do not allow a user to vote
-    //   if(hasVoted) {
-    //     $('form').hide();
-    //   }
-    //   loader.hide();
-    //   content.show();
-    // }).catch(function(error) {
-    //   console.warn(error);
-    // });
-  },
-
-  // castVote: function() {
-  //   var candidateId = $('#candidatesSelect').val();
-  //   App.contracts.Election.deployed().then(function(instance) {
-  //     return instance.vote(candidateId, { from: App.account });
-  //   }).then(function(result) {
-  //     // Wait for votes to update
-  //     $("#content").hide();
-  //     $("#loader").show();
-  //   }).catch(function(err) {
-  //     console.error(err);
-  //   });
-  // }
+    });   
+  }, 
 };
 $(function() {
   $(window).load(function() {

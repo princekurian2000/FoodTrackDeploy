@@ -18,9 +18,14 @@ contract FoodTrack {
     
     uint public productCount;
 
-    // voted event
+    // event 
     event addedProduct (
-        uint indexed _productId
+        uint indexed _productId,
+        address owner,
+        string name,
+        string date,
+        string time,
+        string productinfo
     );
 
     function registerRoles (string memory _role) public {
@@ -30,7 +35,13 @@ contract FoodTrack {
   
     function addProduct (string memory _name,string memory _date,string memory _time,string memory _productinfo) public {
         productCount ++;
-        products[productCount] = Product(productCount, _name,_date,_name,_productinfo);
+        products[productCount] = Product(productCount, _name,_date,_time,_productinfo);
+        emit addedProduct(productCount,msg.sender,_name,_date,_time,_productinfo);
+    }
+    function updateProduct (uint _id,string memory _date,string memory _time,string memory _productinfo) public {
+        string memory _name=products[_id].name;
+        products[_id] = Product(_id, _name,_date,_time,_productinfo);
+        emit addedProduct(_id,msg.sender,_name,_date,_time,_productinfo);
     }
     
 }
