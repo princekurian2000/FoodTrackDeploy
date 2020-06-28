@@ -1,8 +1,7 @@
 App = {
   web3Provider: null,
   contracts: {},
-  account: '0x0',
-  hasVoted: false,
+  account: '0x0',  
   loading:false,
   allblocks:[],
 
@@ -125,6 +124,11 @@ App = {
     alert("updated   successfully");        
   },
 
+  displayChainHistory: async function() {   
+    var initialSelectedId=1; 
+      
+  },
+
 
   //Listen for events emitted from the contract
   listenForEvents: function() {
@@ -137,14 +141,21 @@ App = {
         toBlock: 'latest'
       }).watch(function(error, event) {
          //console.log(event.args);
-        //consolelog(event);
+        //console.log(event);
+        //alert(event.args.owner);
+        console.log("before inside Event push...");
+        console.log(event.args.owner);
         App.allblocks.push(event);
+        console.log("after  push... inside Event...");
+        App.allblocks.forEach(block => {
+          console.log(block.args.owner);
+        });
         App.render();
       });
     });
   },
 
-  render: function() {
+  render: async function() {
     if(App.loading){
       return;
     }
@@ -211,38 +222,26 @@ App = {
               });
             }
         });
-        //reading history for selected trackID(initialSelectedId)        
-        App.allblocks.forEach(block => {
-          console.log("block Order...");
-          console.log(block);
-          if(block.args._productId.toNumber()==initialSelectedId)
-          {           
-            //getting Roles for each address
+        //reading history for selected trackID(initialSelectedId)
+        App.allblocks.forEach(block => {          
+           if(block.args._productId.toNumber()==initialSelectedId)
+           {           
+             //getting Roles for each address               
             App.contracts.FoodTrack.deployed().then((instance)=>{
-                return instance.roles(block.args.owner); 
-            }).then((role)=>{
-              // console.log("Addresses       ");
-              // console.log(block.args.owner);
-              // console.log("Role      ");
-              // console.log(role);
+                return instance.roles(block.args.owner);
+            }).then((role)=>{              
               var str;
               var tooltip=JSON.stringify(block);
-              if(role=="1"){
-                
-                str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";
-                //str=block.args.owner+"(Farmer)->";
+              if(role=="1"){                
+                str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
               }
               else{
-                str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";
-                //str=block.args.owner+"(InterMediate)->";
-              }
-              $("#roleAddress").html(block.args.owner);
-              chainHistory.append(str);
-            });      
-            
-          }
-        });
-
+                str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
+              }              
+              chainHistory.append(str);  
+            });                                            
+           }  
+          })
         App.loading=false;
         loader.hide();
         content.hide();
@@ -266,10 +265,10 @@ App = {
         farmer.hide();
         intermediate.hide();
         endUser.hide();
-      }
-      
-    });   
-  }, 
+      }      
+    });  
+  }
+  
 };
 $(function() {
   $(window).load(function() {
