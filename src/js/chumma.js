@@ -49,46 +49,70 @@ App = {
       prvInfo.empty(); 
       var chainHistory = $("#chainHistory");
       chainHistory.empty();
-      prvInfo.append("Loading data from Blockchain...pls wait..."); 
-      App.contracts.FoodTrack.deployed().then((foodtrackInstance)=>{
+       
+
+      // App.contracts.FoodTrack.deployed().then((foodtrackInstance)=>{
          
-        foodtrackInstance.products(trackingNumberSelected).then(function(product) {
-          console.log(product);
-          var id = product[0];
-          var name = product[1];
-          var date = product[2];
-          var time = product[3];
-          var productinfo = product[4];
-          let productjson = {
-            id: id,
-            name: name,
-            date: date,
-            time: time,
-            productinfo: productinfo
-          };                
-          let json = JSON.stringify(productjson);  
-          prvInfo.empty();    
-          prvInfo.append(json);  
-        });
-      });  
-      //reading history for selected trackID(trackingNumberSelected)     
+      //   foodtrackInstance.products(trackingNumberSelected).then(function(product) {
+      //     console.log(product);
+      //     var id = product[0];
+      //     var name = product[1];
+      //     var date = product[2];
+      //     var time = product[3];
+      //     var productinfo = product[4];
+      //     let productjson = {
+      //       id: id,
+      //       name: name,
+      //       date: date,
+      //       time: time,
+      //       productinfo: productinfo
+      //     };                
+      //     let json = JSON.stringify(productjson);  
+      //     // prvInfo.empty();    
+      //     // prvInfo.append(json);  
+      //   });
+      // });  
+      //reading history for selected trackID(trackingNumberSelected)        
       
+      var prev_info_model = {
+                            role:null,
+                            address:null,
+                            id: null,
+                            name: null,
+                            date: null,
+                            time: null,
+                            productinfo: null
+                          };  
+          
       for(var i=0;i<App.allblocks.length;i++){
         var block= App.allblocks[i];
         if(block.args._productId.toNumber()==trackingNumberSelected)
-        {           
+        {     
+              //To append on Prev Info field
+              prev_info_model.address=block.args.owner ;
+              prev_info_model.id=block.args._productId;
+              prev_info_model.name=block.args.name;
+              prev_info_model.date=block.args.date;
+              prev_info_model.time=block.args.time;
+              prev_info_model.productinfo=block.args.productinfo;      
           //getting Roles for each address  
           var foodtrackInstance=await App.contracts.FoodTrack.deployed();
           var roleForChainHistory=await foodtrackInstance.roles(block.args.owner);       
            var str;
            var tooltip=JSON.stringify(block);
-           if(roleForChainHistory=="1"){                
+           if(roleForChainHistory=="1"){   
+            prev_info_model.role="Farmer" ;               
              str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
            }
            else{
+            prev_info_model.role="InterMediate" ;
              str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
-           }              
+           }   
+                  
            chainHistory.append(str);  
+           prvInfo.append(JSON.stringify(prev_info_model)) ;
+           prvInfo.append("\n\r");
+           
                                                      
         } 
       }
@@ -120,9 +144,54 @@ App = {
           
       //   }
       // });
-
-
-  
+    },
+    selectedTrackingNumberEndUser:async  function() {    
+      var trackingNumberSelected=parseInt($("#trackingIDSelectEndUser").val());
+      console.log(trackingNumberSelected);
+      var prvInfo = $('#prvInfoEndUser');
+      prvInfo.empty(); 
+      var chainHistory = $("#chainHistoryEndUser");
+      chainHistory.empty();
+      var prev_info_model = {
+                            role:null,
+                            address:null,
+                            id: null,
+                            name: null,
+                            date: null,
+                            time: null,
+                            productinfo: null
+                          };  
+          
+      for(var i=0;i<App.allblocks.length;i++){
+        var block= App.allblocks[i];
+        if(block.args._productId.toNumber()==trackingNumberSelected)
+        {     
+              //To append on Prev Info field
+              prev_info_model.address=block.args.owner ;
+              prev_info_model.id=block.args._productId;
+              prev_info_model.name=block.args.name;
+              prev_info_model.date=block.args.date;
+              prev_info_model.time=block.args.time;
+              prev_info_model.productinfo=block.args.productinfo;      
+          //getting Roles for each address  
+          var foodtrackInstance=await App.contracts.FoodTrack.deployed();
+          var roleForChainHistory=await foodtrackInstance.roles(block.args.owner);       
+           var str;
+           var tooltip=JSON.stringify(block);
+           if(roleForChainHistory=="1"){   
+            prev_info_model.role="Farmer" ;               
+             str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
+           }
+           else{
+            prev_info_model.role="InterMediate" ;
+             str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
+           }   
+                  
+           chainHistory.append(str);  
+           prvInfo.append(JSON.stringify(prev_info_model)) ;
+           prvInfo.append("\n\r");                   
+        } 
+      }     
     },
   
     addProductByFarmer: async function() {
@@ -206,54 +275,59 @@ App = {
           chainHistory.empty();
           foodtrackInstance.productCount().then((c)=>{                
               var trackingIDSelect = $('#trackingIDSelect');
-              trackingIDSelect.empty();
-              var prvInfo = $('#prvInfo');
-              prvInfo.empty();
-              var flag=0;
-              
-              for (var i = 1; i <= c; i++) {
-                foodtrackInstance.products(i).then(function(product) {
-                  var id = product[0];
-                  var name = product[1];
-                  var date = product[2];
-                  var time = product[3];
-                  var productinfo = product[4];
-                  let productjson = {
-                    id: id,
-                    name: name,
-                    date: date,
-                    time: time,
-                    productinfo: productinfo
-                  };                
-                  let json = JSON.stringify(productjson); 
-                  if(flag==0){prvInfo.append(json); flag=1;}  
+              trackingIDSelect.empty();                          
+                //Loading all Product ID's from blockchain
+                for (var i = 1; i <= c; i++) {
+                  foodtrackInstance.products(i).then(function(product) {
+                               var id = product[0];                              
                   var trackindId = "<option value='" + id + "' >" + id + "</ option>"
                   trackingIDSelect.append(trackindId);                
                 });
               }
           });
-          //reading history for selected trackID(initialSelectedId)
+          //reading history for selected trackID(initialSelectedId) & Store in Prev Info field
+          var prvInfo = $('#prvInfo');
+          prvInfo.empty();          
+          var prev_info_model = {
+                                role:null,
+                                address:null,
+                                id: null,
+                                name: null,
+                                date: null,
+                                time: null,
+                                productinfo: null
+                              };         
           for(var i=0;i<App.allblocks.length;i++){
-            var block= App.allblocks[i];
+            var block= App.allblocks[i];            
             if(block.args._productId.toNumber()==initialSelectedId)
-            {           
+            {       
+              prev_info_model.address=block.args.owner ;
+              prev_info_model.id=block.args._productId;
+              prev_info_model.name=block.args.name;
+              prev_info_model.date=block.args.date;
+              prev_info_model.time=block.args.time;
+              prev_info_model.productinfo=block.args.productinfo;
               //getting Roles for each address  
               var roleForChainHistory=await foodtrackInstance.roles(block.args.owner);       
                var str;
-               var tooltip=JSON.stringify(block);
-               if(roleForChainHistory=="1"){                
-                 str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
+               var tooltip=JSON.stringify(block);               
+               if(roleForChainHistory=="1"){     
+                  prev_info_model.role="Farmer" ;                       
+                  str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
                }
                else{
-                 str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
+                  prev_info_model.role="InterMediate" ;                  
+                  str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
                }              
-               chainHistory.append(str);  
-                                                         
+               chainHistory.append(str); 
+               prvInfo.append(JSON.stringify(prev_info_model)) ;
+               prvInfo.append("\n\r");                           
             } 
           }
-          // App.allblocks.forEach(block => {          
-             
-          //   });
+          
+
+
+          
           App.loading=false;
           loader.hide();
           content.hide();
@@ -263,6 +337,61 @@ App = {
           
         }
         else if(role=="3"){
+
+          var initialSelectedId=1;
+          var chainHistory = $("#chainHistoryEndUser");
+          chainHistory.empty();
+          foodtrackInstance.productCount().then((c)=>{                
+              var trackingIDSelect = $('#trackingIDSelectEndUser');
+              trackingIDSelect.empty();                          
+                //Loading all Product ID's from blockchain
+                for (var i = 1; i <= c; i++) {
+                  foodtrackInstance.products(i).then(function(product) {
+                               var id = product[0];                              
+                  var trackindId = "<option value='" + id + "' >" + id + "</ option>"
+                  trackingIDSelect.append(trackindId);                
+                });
+              }
+          });
+          //reading history for selected trackID(initialSelectedId) & Store in Prev Info field
+          var prvInfo = $('#prvInfoEndUser');
+          prvInfo.empty();          
+          var prev_info_model = {
+                                role:null,
+                                address:null,
+                                id: null,
+                                name: null,
+                                date: null,
+                                time: null,
+                                productinfo: null
+                              };         
+          for(var i=0;i<App.allblocks.length;i++){
+            var block= App.allblocks[i];            
+            if(block.args._productId.toNumber()==initialSelectedId)
+            {       
+              prev_info_model.address=block.args.owner ;
+              prev_info_model.id=block.args._productId;
+              prev_info_model.name=block.args.name;
+              prev_info_model.date=block.args.date;
+              prev_info_model.time=block.args.time;
+              prev_info_model.productinfo=block.args.productinfo;
+              //getting Roles for each address  
+              var roleForChainHistory=await foodtrackInstance.roles(block.args.owner);       
+               var str;
+               var tooltip=JSON.stringify(block);               
+               if(roleForChainHistory=="1"){     
+                  prev_info_model.role="Farmer" ;                       
+                  str="<button type='button' class='btn btn-primary' title="+tooltip+">Farmer </button>->";             
+               }
+               else{
+                  prev_info_model.role="InterMediate" ;                  
+                  str="<button type='button' class='btn btn-primary' title="+tooltip+">InterMediate </button>->";               
+               }              
+               chainHistory.append(str); 
+               prvInfo.append(JSON.stringify(prev_info_model)) ;
+               prvInfo.append("\n\r");                           
+            } 
+          }
           App.loading=false;
           loader.hide();
           content.hide();
@@ -270,6 +399,8 @@ App = {
           intermediate.hide();
           endUser.show();
         } 
+
+
         else{
           App.loading=false;
           loader.hide();

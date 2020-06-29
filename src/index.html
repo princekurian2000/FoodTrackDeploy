@@ -95,7 +95,7 @@
                 </tr>
                 <tr>  
                   <td>Chain History</td>                
-                  <td style="text-align: left;"><p id="chainHistory" class="text-center"></p></td>
+                  <td style="text-align:left;"><p id="chainHistory" class="text-center"></p></td>
                 </tr>
                 <tr>
                   <td>Previous Info</td>
@@ -124,10 +124,36 @@
             <hr />
           </form>      
           </div>
+          
+
+
+
+
           <div id="endUser" style="display: none;"> 
             <hr/>
-            <h1>End User Page </h1>    
-            <div><p id="accountAddress" class="text-center"></p></div>     
+            
+              <table class="table">
+                <tr>
+                  <td>Login As</td>
+                  <td><p id="accountAddress" class="text-center"></p>(End User)</td>
+                </tr>
+                <tr>
+                  <td>Tracking Number</td>
+                  <td><select class="form-control" id="trackingIDSelectEndUser" onchange="App.selectedTrackingNumberEndUser();">
+                  </select></td>
+                </tr>
+                <tr>  
+                  <td>Chain History</td>                
+                  <td style="text-align:left;"><p id="chainHistoryEndUser" class="text-center"></p></td>
+                </tr>
+                <tr>
+                  <td>Previous Info</td>
+                  <td><textarea cols="30" rows="8" class="form-control" id="prvInfoEndUser" readonly></textarea></td>
+                </tr>
+              
+              </table>             
+            <hr />
+             
           </div>
 
                   
