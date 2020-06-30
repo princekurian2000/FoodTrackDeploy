@@ -12,6 +12,12 @@ module.exports = {
     develop: {
       port: 8545
     },
+    kovan: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "https://kovan.infura.io/v3/71888ad109ac4177a1cb628576649e44")
+      },
+      network_id: 42
+    }
     // ropsten: {
     //   provider: function() {
     //     return new HDWalletProvider(mnemonic, "https://ropsten.infura.io/v3/0327088953044457a07d02b0d9dc35bd")

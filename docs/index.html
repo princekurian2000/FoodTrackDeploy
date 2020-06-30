@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Food Track</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container" style="width: 650px;">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="text-center">Food Track</h1>
+          <hr/>
+          <br/>
+          <div id="loader">
+            <p class="text-center">Loading...</p>
+          </div>
+          <div id="content" style="display: none;">            
+            <hr/>
+            <form onSubmit="App.registerRole(); return false;">
+              <div class="form-group">
+                <label for="RoleSelect">Select Role</label>
+                <select class="form-control" id="RoleSelect">
+                  <option value="1" selected>Farmer</option>
+                  <option value="2">Intermediate</option>
+                  <option value="3">End User</option>                  
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Register</button>
+              
+            </form>
+           
+          </div>
+          <div id="farmer" style="display: none;"> 
+            <hr/>
+            <form onSubmit="App.addProductByFarmer(); return false;">
+                <table class="table">
+                  <tr>
+                    <td>Login As</td>
+                    <td><p id="accountAddress" class="text-center"></p>(Farmer)</td>
+                  </tr>
+                  <tr>
+                    <td>Product Name</td>
+                    <td><input type="text" class="form-control" id="prdName"></td>
+                  </tr>
+                  <tr>
+                    <td>Date</td>
+                    <td><input type="date" class="form-control" id="prdDate"></td>
+                  </tr>
+                  <tr>
+                    <td>Time</td>
+                    <td><input type="time" class="form-control" id="prdTime"></td>
+                  </tr>
+                  <tr>
+                    <td>Product Info</td>
+                    <td>
+                      <textarea cols="30" rows="5" class="form-control" id="prdInfo"></textarea>
+                    </td>
+                  </tr>
+                  <tr >
+                    <td colspan="2" align="center">
+                    <button class="btn btn-primary">Add to Blockchain</button>
+                  </td>
+                  </tr>
+                </table>             
+              <hr />
+            </form> 
+            <div><p id="accountAddress" class="text-center"></p></div> 
+                    
+          </div>
+          <div id="intermediate" style="display: none;"> 
+            <hr/>
+            <form onSubmit="App.updtaeByInterMediate(); return false;">
+              <table class="table">
+                <tr>
+                  <td>Login As</td>
+                  <td><p id="accountAddress" class="text-center"></p>(InterMediate)</td>
+                </tr>
+                <tr>
+                  <td>Tracking Number</td>
+                  <td><select class="form-control" id="trackingIDSelect" onchange="App.selectedTrackingNumber();">
+                  </select></td>
+                </tr>
+                <tr>  
+                  <td>Chain History</td>                
+                  <td style="text-align:left;"><p id="chainHistory" class="text-center"></p></td>
+                </tr>
+                <tr>
+                  <td>Previous Info</td>
+                  <td><textarea cols="30" rows="5" class="form-control" id="prvInfo" readonly></textarea></td>
+                </tr>
+                <tr>
+                  <td>Date</td>
+                  <td ><input type="date" class="form-control" id="newDate"></td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td><input type="time" class="form-control" id="newTime"></td>
+                </tr>
+                <tr>
+                  <td>Product Info</td>
+                  <td>
+                    <textarea cols="30" rows="8" class="form-control" id="newPrdInfo"></textarea>
+                  </td>
+                </tr>
+                <tr >
+                  <td colspan="2" align="center">
+                  <button class="btn btn-primary">Add to Blockchain</button>
+                </td>
+                </tr>
+              </table>             
+            <hr />
+          </form>      
+          </div>
+          
+
+          <div id="endUser" style="display: none;"> 
+            <hr/>
+            
+              <table class="table">
+                <tr>
+                  <td>Login As</td>
+                  <td><p id="accountAddress" class="text-center"></p>(End User)</td>
+                </tr>
+                <tr>
+                  <td>Tracking Number</td>
+                  <td><select class="form-control" id="trackingIDSelectEndUser" onchange="App.selectedTrackingNumberEndUser();">
+                  </select></td>
+                </tr>
+                <tr>  
+                  <td>Chain History</td>                
+                  <td style="text-align:left;"><p id="chainHistoryEndUser" class="text-center"></p></td>
+                </tr>
+                <tr>
+                  <td>Previous Info</td>
+                  <td><textarea cols="30" rows="8" class="form-control" id="prvInfoEndUser" readonly></textarea></td>
+                </tr>
+              
+              </table>             
+            <hr />
+             
+          </div>
+
+        
+         
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
