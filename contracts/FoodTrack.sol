@@ -27,10 +27,14 @@ contract FoodTrack {
         string time,
         string productinfo
     );
+    event registeredEvent(
+        address owner
+    );
 
     function registerRoles (string memory _role) public {
-        //require(roles[msg.sender]!=0);
+        require(bytes(roles[msg.sender]).length<=0);
         roles[msg.sender] = _role;
+        //emit registeredEvent(msg.sender);
     }
   
     function addProduct (string memory _name,string memory _date,string memory _time,string memory _productinfo) public {
